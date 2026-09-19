@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:20px;background:linear-gradient(135deg,#0f766e,#2563eb,#7c3aed);position:relative;}
+
+#loginSection{width:100%;display:flex;justify-content:center;margin-top:40px;}
+.card{width:100%;max-width:390px;background:rgba(255,255,255,.15);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.25);border-radius:26px;padding:32px 26px;box-shadow:0 20px 45px rgba(0,0,0,.25);position:relative;z-index:1;}
+.logo{width:95px;height:95px;margin:auto;border-radius:50%;background:#ffffff;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 25px rgba(0,0,0,.25);overflow:hidden;border:2.5px solid rgba(255,255,255,.9);}
+.logo img{width:100%;height:100%;object-fit:cover;}
+h2{text-align:center;color:#fff;margin-top:18px;font-size:26px;font-weight:700;}
+.subtitle{text-align:center;color:rgba(255,255,255,.85);font-size:13px;margin:5px 0 25px 0;}
+.input-box{margin-bottom:18px;}
+.input-box label{display:block;color:#fff;font-size:13px;margin-bottom:8px;font-weight:500;}
+.field{position:relative;}
+.field input{width:100%;padding:14px 45px 14px 42px;border:none;outline:none;border-radius:14px;background:rgba(255,255,255,.95);font-size:14px;color:#1f2937;}
+.icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:18px;}
+.eye{position:absolute;right:14px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:17px;user-select:none;}
+button.btn-primary{width:100%;padding:14px;border:none;border-radius:14px;background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;font-size:15px;font-weight:600;cursor:pointer;transition:.25s;box-shadow:0 10px 25px rgba(37,99,235,.35);}
+button.btn-primary:hover{transform:translateY(-2px);}
+button.btn-primary:disabled{opacity:.8;cursor:not-allowed;}
+.message{display:none;margin-top:18px;padding:12px;border-radius:12px;font-size:13px;text-align:center;font-weight:500;}
+.success{display:block;background:#dcfce7;color:#166534;}
+.error{display:block;background:#fee2e2;color:#991b1b;}
+.footer{margin-top:22px;text-align:center;color:rgba(255,255,255,.75);font-size:11px;}
+
+/* Admin Dashboard View */
+#adminSection{display:none;width:100%;max-width:1100px;background:#ffffff;border-radius:24px;padding:24px;box-shadow:0 25px 50px rgba(0,0,0,.25);animation:fadeIn .4s ease-in-out;}
+.header{display:flex;justify-content:space-between;align-items:center;background:#f8fafc;padding:16px 22px;border-radius:16px;border:1px solid #e2e8f0;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
+.welcome{font-size:18px;font-weight:600;color:#0f172a;}
+.welcome span{color:#2563eb;}
+.header-right{display:flex;align-items:center;gap:12px;}
+.timer{font-size:13px;color:#475569;background:#e2e8f0;padding:6px 14px;border-radius:20px;font-weight:500;}
+.logout-btn{padding:8px 16px;background:#ef4444;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;}
+.logout-btn:hover{background:#dc2626;}
+
+.admin-card{background:#f8fafc;padding:18px;border-radius:16px;border:1px solid #e2e8f0;}
+.quick-links{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;}
+.menu-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;background:#ffffff;border:1px solid #cbd5e1;border-radius:10px;color:#1e293b;font-weight:600;cursor:pointer;font-size:14px;transition:.2s;}
+.menu-btn:hover{background:#eff6ff;border-color:#2563eb;color:#2563eb;}
+.menu-btn.active{background:#2563eb;color:#fff;border-color:#2563eb;}
+
+/* Bottom Display Viewer */
+.viewer-container{margin-top:20px;border-radius:16px;overflow:hidden;border:1px solid #cbd5e1;background:#fff;}
+.viewer-header{display:flex;justify-content:space-between;align-items:center;background:#f1f5f9;padding:10px 16px;border-bottom:1px solid #e2e8f0;font-size:13px;font-weight:600;color:#475569;}
+#contentViewer{width:100%;height:750px;border:none;background:#ffffff;display:block;}
+
+/* Signed Out Overlay */
+#signedOutOverlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#ffffff;z-index:999;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;}
+#signedOutOverlay h2{font-size:26px;color:#dc2626;margin-bottom:8px;}
+#signedOutOverlay p{color:#64748b;margin-bottom:24px;font-size:14px;}
+.relogin-btn{padding:12px 28px;background:#2563eb;color:#fff;border:none;border-radius:12px;font-weight:600;cursor:pointer;font-size:14px;}
+
+@keyframes fadeIn{from{opacity:0;transform:scale(.98);}to{opacity:1;transform:scale(1);}}
+</style>
+</head>
+<body>
+
+<!-- 1. LOGIN FORM -->
+<div id="loginSection">
+  <div class="card">
+    <div class="logo"><img src="https://drive.google.com/thumbnail?id=1JzXGnfCoxwsmlp3YtQHYot2fv30KAmo-&sz=w500" alt="MPPS Neelampally Emblem"></div>
+    <h2>Admin Login</h2>
+    <div class="subtitle">School Management Portal</div>
+    <form id="loginForm">
+      <div class="input-box">
+        <label>User ID</label>
+        <div class="field">
+          <span class="icon">👤</span>
+          <input type="text" id="userId" placeholder="Enter User ID" required autocomplete="username">
+        </div>
+      </div>
+      <div class="input-box">
+        <label>Password</label>
+        <div class="field">
+          <span class="icon">🔒</span>
+          <input type="password" id="password" placeholder="Enter Password" required autocomplete="current-password">
+          <span class="eye" id="togglePass">👁</span>
+        </div>
+      </div>
+      <button id="submitBtn" class="btn-primary">Login</button>
+      <div id="statusMessage" class="message"></div>
+    </form>
+    <div class="footer">© 2026 MPPS Neelampally</div>
+  </div>
+</div>
+
+<!-- 2. ADMIN DASHBOARD WITH GOOGLE DRIVE IFRAME VIEWER -->
+<div id="adminSection">
+  <div class="header">
+    <div class="welcome">Welcome : <span id="userNameDisplay">Admin</span></div>
+    <div class="header-right">
+      <div class="timer" id="sessionTimer">Session Idle: 15:00</div>
+      <button class="logout-btn" onclick="triggerSignOut()">Logout</button>
+    </div>
+  </div>
+
+  <div class="admin-card">
+    <h3 style="color:#0f172a;font-size:16px;">Quick Access Menu</h3>
+    <div class="quick-links">
+      <!-- Google Drive లో అప్లోడ్ చేసిన HTML ఫైల్స్‌కి సంబంధించిన Direct Preview / Web URLs ఇక్కడ ఇవ్వాలి -->
+      <button class="menu-btn active" onclick="loadDriveEmbed(this, 'YOUR_DRIVE_URL_1', '📜 Study & Conduct Certificate')">📜 Study & Conduct</button>
+      <button class="menu-btn" onclick="loadDriveEmbed(this, 'YOUR_DRIVE_URL_2', '🎓 Study, Conduct & DOB Certificate')">🎓 Study & DOB</button>
+      <button class="menu-btn" onclick="loadDriveEmbed(this, 'YOUR_DRIVE_URL_3', '📝 Date of Birth Certificate')">📝 DOB Certificate</button>
+      <button class="menu-btn" onclick="loadDriveEmbed(this, 'YOUR_DRIVE_URL_4', '🧹 Scavenger Attendance Certificate')">🧹 Scavenger Attendance</button>
+    </div>
+  </div>
+
+  <div class="viewer-container">
+    <div class="viewer-header">
+      <span id="viewerTitle">📜 Select an Option</span>
+    </div>
+    <iframe id="contentViewer"></iframe>
+  </div>
+</div>
+
+<!-- 3. TIMED OUT / SIGNED OUT SCREEN -->
+<div id="signedOutOverlay">
+  <div style="font-size:52px;margin-bottom:12px;">🔒</div>
+  <h2>You are Signed Out</h2>
+  <p>Your session timed out after 15 minutes of inactivity.</p>
+  <button class="relogin-btn" onclick="resetToLogin()">Login Again</button>
+</div>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx5B-bLW9ulP78jJX7YvQfYMqFEJzCvFYkwE-dN_B1t35Wfh7WA0MSz_AQpW8YabVAg/exec";
+const TIMEOUT_LIMIT = 15 * 60;
+let timeLeft = TIMEOUT_LIMIT;
+let timerInterval = null;
+
+const form = document.getElementById("loginForm");
+const submitBtn = document.getElementById("submitBtn");
+const status = document.getElementById("statusMessage");
+
+document.getElementById("togglePass").onclick = () => {
+  const p = document.getElementById("password");
+  p.type = p.type === "password" ? "text" : "password";
+  document.getElementById("togglePass").textContent = p.type === "password" ? "👁" : "🙈";
+};
+
+window.handleAuthResponse = function(result) {
+  const old = document.getElementById("jsonp_login");
+  if (old) old.remove();
+
+  if (result.success) {
+    status.className = "message success";
+    status.innerHTML = "✅ Login Successful!";
+    setTimeout(() => {
+      openDashboard(result.userName || "Admin");
+    }, 400);
+  } else {
+    status.className = "message error";
+    status.textContent = "❌ " + (result.message || "Invalid User ID or Password");
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Login";
+  }
+};
+
+form.addEventListener("submit", function(e) {
+  e.preventDefault();
+  const user = encodeURIComponent(document.getElementById("userId").value.trim());
+  const pass = encodeURIComponent(document.getElementById("password").value.trim());
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Verifying...";
+  status.className = "message";
+  status.textContent = "";
+
+  const old = document.getElementById("jsonp_login");
+  if (old) old.remove();
+
+  const s = document.createElement("script");
+  s.id = "jsonp_login";
+  s.src = `${SCRIPT_URL}?action=adminLogin&userId=${user}&password=${pass}&callback=handleAuthResponse&t=` + Date.now();
+  s.onerror = () => {
+    status.className = "message error";
+    status.textContent = "⚠ Unable to connect to server.";
+    submitBtn.disabled = false;
+    submitBtn.textContent = "Login";
+  };
+  document.body.appendChild(s);
+});
+
+// Google Drive ఫైల్‌ని ఐఫ్రేమ్‌లో లోడ్ చేసే మెయిన్ ఫంక్షన్
+function loadDriveEmbed(btnElement, driveUrl, title) {
+  document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
+  btnElement.classList.add('active');
+
+  document.getElementById("viewerTitle").textContent = title;
+  const viewer = document.getElementById("contentViewer");
+  viewer.src = driveUrl;
+}
+
+function openDashboard(userName) {
+  document.getElementById("loginSection").style.display = "none";
+  document.getElementById("signedOutOverlay").style.display = "none";
+  document.getElementById("adminSection").style.display = "block";
+  document.getElementById("userNameDisplay").textContent = userName;
+
+  const firstBtn = document.querySelector('.menu-btn');
+  if(firstBtn) {
+    firstBtn.click(); // మొదటి బటన్‌ని ఆటోమేటిక్‌గా లోడ్ చేస్తుంది
+  }
+
+  timeLeft = TIMEOUT_LIMIT;
+  clearInterval(timerInterval);
+
+  ['mousemove', 'keydown', 'scroll', 'touchstart', 'click'].forEach(evt => {
+    window.addEventListener(evt, () => { timeLeft = TIMEOUT_LIMIT; }, true);
+  });
+
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    const mins = Math.floor(timeLeft / 60);
+    const secs = timeLeft % 60;
+    document.getElementById("sessionTimer").textContent = `Session Idle: ${mins}:${secs < 10 ? '0' : ''}${secs}`;
+
+    if (timeLeft <= 0) {
+      triggerSignOut();
+    }
+  }, 1000);
+}
+
+function triggerSignOut() {
+  clearInterval(timerInterval);
+  document.getElementById("contentViewer").src = "";
+  document.getElementById("adminSection").style.display = "none";
+  document.getElementById("loginSection").style.display = "none";
+  document.getElementById("signedOutOverlay").style.display = "flex";
+}
+
+function resetToLogin() {
+  document.getElementById("signedOutOverlay").style.display = "none";
+  document.getElementById("adminSection").style.display = "none";
+  document.getElementById("loginSection").style.display = "flex";
+  document.getElementById("password").value = "";
+  submitBtn.disabled = false;
+  submitBtn.textContent = "Login";
+  status.className = "message";
+  status.textContent = "";
+}
+</script>
+</body>
+</html>

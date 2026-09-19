@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Attendance Certificate</title>
+<style>
+  * { box-sizing: border-box; font-family: Arial, sans-serif; }
+  body { background: #f1f5f9; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+  .control-card { background: #ffffff; padding: 16px 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); margin-bottom: 24px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: center; max-width: 820px; }
+  .control-card input, .control-card select { padding: 9px 12px; font-size: 14px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; }
+  .control-card button { padding: 9px 18px; font-size: 14px; background: #2563eb; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; }
+  .control-card button:hover { background: #1d4ed8; }
+  .btn-print { background: #059669 !important; }
+  .cert-container { background: #ffffff; width: 720px; min-height: 520px; padding: 50px 48px; border: 1px solid #111; box-shadow: 0 4px 12px rgba(0,0,0,0.1); position: relative; }
+  .cert-title { text-align: center; font-size: 20px; font-weight: bold; letter-spacing: 0.5px; margin-bottom: 45px; text-transform: uppercase; }
+  .cert-content { font-size: 16px; line-height: 2.1; text-align: justify; color: #000; }
+  .bold-val { font-weight: bold; }
+  .bottom-info { margin-top: 55px; font-size: 15px; line-height: 1.8; }
+  .signature-block { text-align: right; margin-top: 35px; font-size: 15px; line-height: 1.4; }
+</style>
+</head>
+<body>
+<div class="control-card">
+  <input type="text" id="workerName" placeholder="Name" value="PEERLA SAMMAKKA" style="width: 200px;" />
+  <input type="text" id="guardianName" placeholder="Son/Wife of" value="RAMMURTHI" style="width: 190px;" />
+  <select id="monthSelect" style="width: 130px;">
+    <option value="1">January</option>
+    <option value="2">February</option>
+    <option value="3">March</option>
+    <option value="4">April</option>
+    <option value="5">May</option>
+    <option value="6">June</option>
+    <option value="7" selected>July</option>
+    <option value="8">August</option>
+    <option value="9">September</option>
+    <option value="10">October</option>
+    <option value="11">November</option>
+    <option value="12">December</option>
+  </select>
+  <input type="number" id="yearInput" placeholder="Year" value="2026" style="width: 90px;" />
+  <button type="button" onclick="generateCertificate()">View Certificate</button>
+  <button type="button" class="btn-print" onclick="printCertificateBlob()">Print / Save PDF</button>
+</div>
+<div class="cert-container" id="certBox">
+  <div class="cert-title">ATTENDANCE CERTIFICATE</div>
+  <div class="cert-content">
+    This is to certify that Mr./Ms. <span class="bold-val" id="dispName">PEERLA SAMMAKKA</span>, Son/Wife of <span class="bold-val" id="dispGuardian">RAMMURTHI</span>, working as Scavenger in <span class="bold-val">MPPS NEELAMPALLY</span> School, has attended the institution regularly and performed duties sincerely during the period from <span class="bold-val" id="dispFromDate">01.07.2026</span> to <span class="bold-val" id="dispToDate">31.07.2026</span>.
+    <br><br>
+    His/ Her attendance and services during the <span style="text-decoration: underline;">said</span> period are satisfactory.
+  </div>
+  <div class="bottom-info">
+    <div>Date : <span id="dispDate">01.08.2026</span></div>
+    <div>Place : MPPS Neelampally</div>
+  </div>
+  <div class="signature-block">
+    <div>Headmaster</div>
+    <div>(Signature & Seal)</div>
+  </div>
+</div>
+
+<script>
+function padZero(num) { return String(num).padStart(2, '0'); }
+
+function generateCertificate() {
+  const name = document.getElementById('workerName').value.trim() || 'PEERLA SAMMAKKA';
+  const guardian = document.getElementById('guardianName').value.trim() || 'RAMMURTHI';
+  const month = parseInt(document.getElementById('monthSelect').value, 10);
+  const year = parseInt(document.getElementById('yearInput').value, 10) || 2026;
+
+  const fromDateStr = '01.' + padZero(month) + '.' + year;
+  const lastDay = new Date(year, month, 0).getDate();
+  const toDateStr = padZero(lastDay) + '.' + padZero(month) + '.' + year;
+
+  const nextMonthDate = new Date(year, month - 1, lastDay + 1);
+  const issueDateStr = padZero(nextMonthDate.getDate()) + '.' + padZero(nextMonthDate.getMonth() + 1) + '.' + nextMonthDate.getFullYear();
+
+  document.getElementById('dispName').innerText = name.toUpperCase();
+  document.getElementById('dispGuardian').innerText = guardian.toUpperCase();
+  document.getElementById('dispFromDate').innerText = fromDateStr;
+  document.getElementById('dispToDate').innerText = toDateStr;
+  document.getElementById('dispDate').innerText = issueDateStr;
+}
+
+function printCertificateBlob() {
+  const certBox = document.getElementById('certBox');
+  if (!certBox) return;
+  const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Print</title><style>' +
+    '* { box-sizing: border-box; font-family: Arial, sans-serif; }' +
+    'body { margin: 0; padding: 0; background: #fff; display: flex; justify-content: center; }' +
+    '.cert-container { width: 720px; min-height: 520px; padding: 50px 48px; border: 1px solid #000; background: #fff; }' +
+    '.cert-title { text-align: center; font-size: 20px; font-weight: bold; letter-spacing: 0.5px; margin-bottom: 45px; text-transform: uppercase; }' +
+    '.cert-content { font-size: 16px; line-height: 2.1; text-align: justify; color: #000; }' +
+    '.bold-val { font-weight: bold; }' +
+    '.bottom-info { margin-top: 55px; font-size: 15px; line-height: 1.8; }' +
+    '.signature-block { text-align: right; margin-top: 35px; font-size: 15px; line-height: 1.4; }' +
+    '@page { size: A4 portrait; margin: 15mm; }' +
+    '</style></head><body>' + certBox.outerHTML +
+    '<script>window.onload = function() { setTimeout(function() { window.print(); }, 250); };<\/script></body></html>';
+
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  const blobUrl = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = blobUrl; a.target = '_blank';
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { a.remove(); URL.revokeObjectURL(blobUrl); }, 1500);
+}
+
+generateCertificate();
+</script>
+</body>
+</html>

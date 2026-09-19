@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Student Marks Entry Form</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #cbd5e1;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+        }
+
+        h2 {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        select, input {
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.2s ease;
+            background-color: #fff;
+        }
+
+        select:focus, input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 1.5rem 0 0.75rem 0;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 0.3rem;
+            color: var(--primary);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.95rem;
+        }
+
+        th {
+            background-color: #f1f5f9;
+            font-weight: 600;
+        }
+
+        td input {
+            width: 100%;
+            padding: 0.45rem;
+        }
+
+        .btn-submit {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 0.875rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 1rem;
+        }
+
+        .btn-submit:hover {
+            background-color: var(--primary-hover);
+        }
+
+        #loading {
+            text-align: center;
+            color: var(--text-muted);
+            margin: 10px 0;
+            display: none;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Student Marks Entry Form</h2>
+    
+    <form id="marksForm">
+        <div class="form-grid">
+            <div class="form-group">
+                <label>1. Academic Year</label>
+                <select id="academicYear" required onchange="onFilterChange()">
+                    <option value="">Loading years...</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>2. Exam Type</label>
+                <select id="examType" required onchange="renderDynamicFields()">
+                    <option value="">Select Exam</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>3. Class</label>
+                <select id="classSelect" required onchange="fetchStudents()">
+                    <option value="">Select Class</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>4. Student Name</label>
+                <select id="studentSelect" required onchange="renderDynamicFields()">
+                    <option value="">Select Student</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="loading">Fetching data from Marks_Data...</div>
+
+        <div id="dynamicContainer"></div>
+
+        <button type="submit" class="btn-submit" id="submitBtn" style="display:none;">Submit Marks</button>
+    </form>
+</div>
+
+<script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyv_8ZKwjeIfuPzZd3nlQr66EkkdWImrtgS-xk5rCdSwZ47Qoq-2sIE5ALpHKPqbyaN/exec"; // <-- మీ కొత్త వెబ్ యాప్ URL ఇక్కడ ఇవ్వండి
+    let studentsData = [];
+
+    window.onload = async function() {
+        try {
+            const response = await fetch(`${SCRIPT_URL}?action=getFilters`);
+            const result = await response.json();
+            
+            const yearSelect = document.getElementById('academicYear');
+            const examSelect = document.getElementById('examType');
+            const classSelect = document.getElementById('classSelect');
+            
+            yearSelect.innerHTML = '<option value="">Select Year</option>';
+            examSelect.innerHTML = '<option value="">Select Exam</option>';
+            classSelect.innerHTML = '<option value="">Select Class</option>';
+            
+            result.years.forEach(yr => {
+                yearSelect.innerHTML += `<option value="${yr}">${yr}</option>`;
+            });
+            result.exams.forEach(ex => {
+                examSelect.innerHTML += `<option value="${ex}">${ex}</option>`;
+            });
+            result.classes.forEach(cls => {
+                classSelect.innerHTML += `<option value="${cls}">${cls}</option>`;
+            });
+        } catch (e) {
+            console.error("Error loading filters", e);
+            alert("Error loading filters from Google Sheet.");
+        }
+    };
+
+    function onFilterChange() {
+        document.getElementById('studentSelect').innerHTML = '<option value="">Select Student</option>';
+        document.getElementById('dynamicContainer').innerHTML = '';
+        document.getElementById('submitBtn').style.display = 'none';
+        fetchStudents();
+    }
+
+    async function fetchStudents() {
+        const year = document.getElementById('academicYear').value;
+        const cls = document.getElementById('classSelect').value;
+        const studentSelect = document.getElementById('studentSelect');
+
+        if (!year || !cls) return;
+
+        document.getElementById('loading').style.display = 'block';
+        studentSelect.innerHTML = '<option value="">Select Student</option>';
+
+        try {
+            const response = await fetch(`${SCRIPT_URL}?action=getStudents&year=${year}&cls=${cls}`);
+            studentsData = await response.json();
+            
+            if (studentsData.length === 0) {
+                studentSelect.innerHTML = '<option value="">No students found</option>';
+            } else {
+                studentsData.forEach((st, index) => {
+                    studentSelect.innerHTML += `<option value="${index}">${st.studentName}</option>`;
+                });
+            }
+        } catch (e) {
+            alert("Error fetching students.");
+            console.error(e);
+        } finally {
+            document.getElementById('loading').style.display = 'none';
+        }
+    }
+
+    function renderDynamicFields() {
+        const examType = document.getElementById('examType').value;
+        const studentClassStr = document.getElementById('classSelect').value;
+        const studentIndex = document.getElementById('studentSelect').value;
+        const container = document.getElementById('dynamicContainer');
+        const submitBtn = document.getElementById('submitBtn');
+
+        if (!examType || !studentClassStr || studentIndex === "") {
+            container.innerHTML = '';
+            submitBtn.style.display = 'none';
+            return;
+        }
+
+        submitBtn.style.display = 'block';
+
+        let html = `
+            <div class="section-title">Table 1: Attendance Details</div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Maximum Working Days</label>
+                    <input type="number" id="maxWorkingDays" required min="1">
+                </div>
+                <div class="form-group">
+                    <label>Present Working Days</label>
+                    <input type="number" id="presentDays" required min="0">
+                </div>
+            </div>
+        `;
+
+        let subjects = [];
+        const isSA = examType.includes('SA');
+
+        if (studentClassStr === '1' || studentClassStr === 'I' || studentClassStr === 'II' || studentClassStr === '2') {
+            subjects = ['Telugu', 'English', 'Maths'];
+            if (isSA) subjects.push('HPE', 'WCE', 'VLE', 'ACE');
+        } else {
+            subjects = ['Telugu', 'English', 'Maths', 'EVS'];
+            if (isSA) subjects.push('HPE', 'WCE', 'VLE', 'ACE');
+        }
+
+        html += `<div class="section-title">Table 2: Subject Marks (Max Marks: 50)</div>
+                 <table>
+                    <thead>
+                        <tr>
+                            <th>Subject</th>
+                            <th>Max Marks</th>
+                            <th>Obtain Marks</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+        subjects.forEach(sub => {
+            let subKey = sub.toLowerCase();
+            html += `
+                <tr>
+                    <td>${sub}</td>
+                    <td><input type="number" value="50" id="${subKey}_max" readonly></td>
+                    <td><input type="number" placeholder="Enter Marks" id="${subKey}_obt" required min="0" max="50"></td>
+                </tr>
+            `;
+        });
+
+        html += `</tbody></table>`;
+        container.innerHTML = html;
+    }
+
+    document.getElementById('marksForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const academicYear = document.getElementById('academicYear').value;
+        const examType = document.getElementById('examType').value;
+        const studentClass = document.getElementById('classSelect').value;
+        const studentIndex = document.getElementById('studentSelect').value;
+        const selectedStudent = studentsData[studentIndex];
+        const maxWorkingDays = document.getElementById('maxWorkingDays').value;
+        const presentDays = document.getElementById('presentDays').value;
+
+        let payload = {
+            academicYear: academicYear,
+            examType: examType,
+            studentClass: studentClass,
+            admmNo: selectedStudent.admmNo,
+            studentName: selectedStudent.studentName.split(" (Adm:")[0], 
+            fatherName: selectedStudent.fatherName,
+            motherName: selectedStudent.motherName,
+            maxWorkingDays: maxWorkingDays,
+            presentDays: presentDays,
+            
+            teluguMax: document.getElementById('telugu_max') ? document.getElementById('telugu_max').value : "",
+            teluguObt: document.getElementById('telugu_obt') ? document.getElementById('telugu_obt').value : "",
+            englishMax: document.getElementById('english_max') ? document.getElementById('english_max').value : "",
+            englishObt: document.getElementById('english_obt') ? document.getElementById('english_obt').value : "",
+            mathsMax: document.getElementById('maths_max') ? document.getElementById('maths_max').value : "",
+            mathsObt: document.getElementById('maths_obt') ? document.getElementById('maths_obt').value : "",
+            
+            evsMax: document.getElementById('evs_max') ? document.getElementById('evs_max').value : "",
+            evsObt: document.getElementById('evs_obt') ? document.getElementById('evs_obt').value : "",
+            
+            hpeMax: document.getElementById('hpe_max') ? document.getElementById('hpe_max').value : "",
+            hpeObt: document.getElementById('hpe_obt') ? document.getElementById('hpe_obt').value : "",
+            wceMax: document.getElementById('wce_max') ? document.getElementById('wce_max').value : "",
+            wceObt: document.getElementById('wce_obt') ? document.getElementById('wce_obt').value : "",
+            vleMax: document.getElementById('vle_max') ? document.getElementById('vle_max').value : "",
+            vleObt: document.getElementById('vle_obt') ? document.getElementById('vle_obt').value : "",
+            aceMax: document.getElementById('ace_max') ? document.getElementById('ace_max').value : "",
+            aceObt: document.getElementById('ace_obt') ? document.getElementById('ace_obt').value : "",
+        };
+
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Submitting Marks...";
+
+        try {
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            });
+            alert("Marks successfully submitted and saved to sheet!");
+            document.getElementById('marksForm').reset();
+            document.getElementById('dynamicContainer').innerHTML = '';
+            submitBtn.style.display = 'none';
+            window.onload();
+        } catch (err) {
+            alert("Failed to submit marks.");
+            console.error(err);
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Submit Marks";
+        }
+    });
+</script>
+
+</body>
+</html>

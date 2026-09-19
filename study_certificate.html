@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Study & Conduct Certificate</title>
+<style>
+  * { box-sizing: border-box; font-family: 'Times New Roman', serif; }
+  body { background: #f1f5f9; margin: 0; padding: 16px; display: flex; flex-direction: column; align-items: center; }
+  .search-card { background: #ffffff; padding: 14px 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.08); margin-bottom: 20px; display: flex; gap: 10px; align-items: center; justify-content: center; }
+  .search-card input { padding: 8px 12px; font-size: 14px; border: 1px solid #cbd5e1; border-radius: 6px; width: 200px; outline: none; }
+  .search-card button { padding: 8px 16px; font-size: 14px; background: #1e3a8a; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+  .search-card button:hover { background: #1e40af; }
+  .search-card button:disabled { background: #94a3b8; cursor: not-allowed; }
+  .btn-print { background: #059669 !important; }
+  .certificate-wrapper { background: #fff; width: 100%; max-width: 680px; padding: 26px 30px; border: 3px double #000; outline: 2px solid #000; outline-offset: 4px; position: relative; margin-bottom: 20px; }
+  .institution-header-box { border: 2px solid #000; padding: 8px 12px; margin-bottom: 14px; text-align: center; }
+  .institution-name { font-size: 18px; font-weight: bold; text-transform: uppercase; display: block; }
+  .institution-address { font-size: 14px; font-weight: 600; margin-top: 4px; display: block; }
+  .title-main { text-align: center; font-size: 17px; font-weight: 900; text-transform: uppercase; margin-bottom: 16px; text-decoration: underline; }
+  .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; font-size: 15px; font-weight: bold; }
+  .boxed-val { border: 1.5px solid #000; padding: 2px 10px; border-radius: 5px; display: inline-block; min-width: 60px; text-align: center; }
+  .cert-body { font-size: 16px; line-height: 2.1; text-align: justify; text-indent: 40px; color: #000; }
+  .fill { display: inline; border-bottom: 1px dotted #000; font-weight: bold; padding: 0 4px; }
+  .name-caps { font-weight: 900; text-transform: uppercase; }
+  .id-identifiers-row { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; padding: 8px 4px 0; border-top: 1px dashed #aaa; font-size: 14px; font-weight: bold; }
+  .id-item { display: flex; align-items: center; gap: 4px; }
+  .id-fill { display: inline; border-bottom: 1px dotted #000; font-weight: bold; padding: 0 4px; }
+  .footer-row { display: flex; justify-content: space-between; margin-top: 55px; padding: 0 5px; font-size: 15px; font-weight: bold; }
+</style>
+</head>
+<body>
+<div class="search-card">
+  <input type="text" id="admnInput" placeholder="Enter Admission No." autocomplete="off" />
+  <button type="button" id="btnSearch" onclick="fetchCertificate()">View Certificate</button>
+  <button type="button" class="btn-print" id="btnPrint" onclick="printCertificateBlob()">Print / Save PDF</button>
+</div>
+<div class="certificate-wrapper" id="certArea">
+  <div class="institution-header-box">
+    <span class="institution-name">MANDAL PARISHAD PRIMARY SCHOOL - NEELAMPALLY</span>
+    <span class="institution-address">Neelampally (V), Palimela (M), Jayashankar Bhupalpally (D)</span>
+  </div>
+  <div class="title-main">STUDY & CONDUCT CERTIFICATE</div>
+  <div class="header-row">
+    <div>Admn. No. <span class="boxed-val" id="outAdmn">----</span></div>
+    <div>Date : <span class="boxed-val" id="outDate"></span></div>
+  </div>
+  <div class="cert-body">
+    This is to certify that the Kumari/Kumar <span class="fill name-caps" id="outName">........................................</span>, D/o. / S/o. Sri <span class="fill name-caps" id="outFather">........................................</span> has studied in the school from class <span class="fill" id="outFromClass">........</span> to <span class="fill" id="outToClass">........</span> during the year from <span class="fill" id="outFromYear">............</span> to <span class="fill" id="outToYear">............</span> and His / Her conduct was <span class="fill" id="outConduct">Satisfactory</span> during the above period.
+  </div>
+  <div class="id-identifiers-row">
+    <div class="id-item">Aadhaar No. : <span class="id-fill" id="outAadhar">XXXX XXXX ----</span></div>
+    <div class="id-item">PEN No. : <span class="id-fill" id="outPen">------------</span></div>
+    <div class="id-item">APAAR No. : <span class="id-fill" id="outApaar">------------</span></div>
+  </div>
+  <div class="footer-row">
+    <div>Admission Incharge</div>
+    <div>Head of the Institution</div>
+  </div>
+</div>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbx5B-bLW9ulP78jJX7YvQfYMqFEJzCvFYkwE-dN_B1t35Wfh7WA0MSz_AQpW8YabVAg/exec";
+
+function getSystemDate() {
+  const today = new Date();
+  return String(today.getDate()).padStart(2, '0') + '/' + String(today.getMonth() + 1).padStart(2, '0') + '/' + today.getFullYear();
+}
+document.getElementById('outDate').innerText = getSystemDate();
+document.getElementById('admnInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') fetchCertificate(); });
+
+function toRoman(num) {
+  const lookup = { '1': 'I', '2': 'II', '3': 'III', '4': 'IV', '5': 'V', '6': 'VI', '7': 'VII', '8': 'VIII', '9': 'IX', '10': 'X' };
+  return lookup[String(num || '').trim()] || num;
+}
+function extractYear(val) {
+  if (!val) return '';
+  const str = String(val).trim();
+  const match = str.match(/\b(19\d{2}|20\d{2})\b/);
+  return match ? match[0] : str;
+}
+function maskId(val) {
+  const clean = String(val || '').replace(/\D/g, '');
+  return clean.length >= 4 ? 'XXXX XXXX ' + clean.slice(-4) : (val ? 'XXXX XXXX ----' : '------------');
+}
+
+window.handleCertResult = function(res) {
+  const btn = document.getElementById('btnSearch');
+  btn.disabled = false; btn.innerText = 'View Certificate';
+
+  if (!res || !res.success) {
+    alert(res.message || 'Admission Number not found.');
+    return;
+  }
+  const row = res.data;
+  document.getElementById('outAdmn').innerText = row[0] || '';
+  document.getElementById('outDate').innerText = getSystemDate();
+  document.getElementById('outName').innerText = String(row[1] || '').toUpperCase();
+  document.getElementById('outFather').innerText = String(row[10] || '').toUpperCase();
+  document.getElementById('outFromClass').innerText = toRoman(row[19]);
+  document.getElementById('outToClass').innerText = toRoman(row[29]);
+  document.getElementById('outFromYear').innerText = extractYear(row[18]);
+  document.getElementById('outToYear').innerText = extractYear(row[30]);
+  document.getElementById('outConduct').innerText = 'Satisfactory';
+  document.getElementById('outAadhar').innerText = maskId(row[36]);
+  document.getElementById('outPen').innerText = row[37] || '------------';
+  document.getElementById('outApaar').innerText = row[38] || '------------';
+};
+
+function fetchCertificate() {
+  const q = document.getElementById('admnInput').value.trim();
+  const btn = document.getElementById('btnSearch');
+  if (!q) { alert('Please enter an Admission Number'); return; }
+  btn.disabled = true; btn.innerText = 'Searching...';
+
+  const old = document.getElementById('jsonp_cert');
+  if (old) old.remove();
+
+  const s = document.createElement('script');
+  s.id = 'jsonp_cert';
+  s.src = API_URL + '?action=getCertificate&admnNo=' + encodeURIComponent(q) + '&callback=handleCertResult&t=' + Date.now();
+  s.onerror = function() {
+    btn.disabled = false; btn.innerText = 'View Certificate';
+    alert('Network error. Please try again.');
+  };
+  document.body.appendChild(s);
+}
+
+function printCertificateBlob() {
+  const certArea = document.getElementById('certArea');
+  if (!certArea) return;
+  const html = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Print</title><style>' +
+    '* { box-sizing: border-box; font-family: "Times New Roman", serif; }' +
+    'body { margin: 0; padding: 0; background: #fff; display: flex; justify-content: center; }' +
+    '.certificate-wrapper { width: 680px; padding: 26px 30px; border: 3px double #000; outline: 2px solid #000; outline-offset: 4px; background: #fff; }' +
+    '.institution-header-box { border: 2px solid #000; padding: 8px 12px; margin: 0 0 14px 0; text-align: center; }' +
+    '.institution-name { font-size: 18px; font-weight: bold; text-transform: uppercase; line-height: 1.2; display: block; }' +
+    '.institution-address { font-size: 14px; font-weight: 600; margin-top: 4px; color: #111; display: block; }' +
+    '.title-main { text-align: center; font-size: 17px; font-weight: 900; text-transform: uppercase; margin-bottom: 16px; text-decoration: underline; }' +
+    '.header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; font-size: 15px; font-weight: bold; }' +
+    '.boxed-val { border: 1.5px solid #000; padding: 2px 10px; border-radius: 5px; display: inline-block; min-width: 60px; text-align: center; font-weight: bold; }' +
+    '.cert-body { font-size: 16px; line-height: 2.1; text-align: justify; text-indent: 40px; color: #000; }' +
+    '.fill { display: inline; border-bottom: 1px dotted #000; font-weight: bold; padding: 0 4px; }' +
+    '.name-caps { font-weight: 900; text-transform: uppercase; }' +
+    '.id-identifiers-row { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; padding: 8px 4px 0 4px; border-top: 1px dashed #aaa; font-size: 14px; font-weight: bold; }' +
+    '.id-item { display: flex; align-items: center; gap: 4px; }' +
+    '.id-fill { display: inline; border-bottom: 1px dotted #000; font-weight: bold; padding: 0 4px; }' +
+    '.footer-row { display: flex; justify-content: space-between; margin-top: 55px; padding: 0 5px 5px 5px; font-size: 15px; font-weight: bold; }' +
+    '@page { size: A4 portrait; margin: 15mm; }' +
+    '</style></head><body>' + certArea.outerHTML +
+    '<script>window.onload = function() { setTimeout(function() { window.print(); }, 250); };<\/script></body></html>';
+
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  const blobUrl = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = blobUrl; a.target = '_blank';
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { a.remove(); URL.revokeObjectURL(blobUrl); }, 1500);
+}
+</script>
+</body>
+</html>
