@@ -7,7 +7,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
-body{min-height:100vh;display:flex;justify-content:center;align-items:flex-start;padding:20px;background:linear-gradient(135deg,#0f766e,#2563eb,#7c3aed);position:relative;}
+html, body {
+  min-height: 100vh;
+  height: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+body{display:flex;justify-content:center;align-items:flex-start;padding:20px;background:linear-gradient(135deg,#0f766e,#2563eb,#7c3aed);position:relative;}
 
 #loginSection{width:100%;display:flex;justify-content:center;margin-top:40px;}
 .card{width:100%;max-width:390px;background:rgba(255,255,255,.15);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.25);border-radius:26px;padding:32px 26px;box-shadow:0 20px 45px rgba(0,0,0,.25);position:relative;z-index:1;}
@@ -29,8 +35,8 @@ button.btn-primary:disabled{opacity:.8;cursor:not-allowed;}
 .error{display:block;background:#fee2e2;color:#991b1b;}
 .footer{margin-top:22px;text-align:center;color:rgba(255,255,255,.75);font-size:11px;}
 
-/* Admin Dashboard View */
-#adminSection{display:none;width:100%;max-width:1100px;background:#ffffff;border-radius:24px;padding:24px;box-shadow:0 25px 50px rgba(0,0,0,.25);animation:fadeIn .4s ease-in-out;}
+/* Admin Dashboard View - స్క్రోల్ బార్లు రాకుండా హైట్ ఆటోమేటిక్‌గా సర్దుకునేలా సవరించబడింది */
+#adminSection{display:none;width:100%;max-width:1100px;background:#ffffff;border-radius:24px;padding:24px;box-shadow:0 25px 50px rgba(0,0,0,.25);animation:fadeIn .4s ease-in-out;height:auto;}
 .header{display:flex;justify-content:space-between;align-items:center;background:#f8fafc;padding:16px 22px;border-radius:16px;border:1px solid #e2e8f0;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
 .welcome{font-size:18px;font-weight:600;color:#0f172a;}
 .welcome span{color:#2563eb;}
@@ -45,10 +51,10 @@ button.btn-primary:disabled{opacity:.8;cursor:not-allowed;}
 .menu-btn:hover{background:#eff6ff;border-color:#2563eb;color:#2563eb;}
 .menu-btn.active{background:#2563eb;color:#fff;border-color:#2563eb;}
 
-/* Bottom Display Viewer */
+/* Bottom Display Viewer - ఐఫ్రేమ్ కంటెంట్‌కి తగినట్లుగా పెరిగేలా సెట్ చేయబడింది */
 .viewer-container{margin-top:20px;border-radius:16px;overflow:hidden;border:1px solid #cbd5e1;background:#fff;}
 .viewer-header{display:flex;justify-content:space-between;align-items:center;background:#f1f5f9;padding:10px 16px;border-bottom:1px solid #e2e8f0;font-size:13px;font-weight:600;color:#475569;}
-#contentViewer{width:100%;height:750px;border:none;background:#ffffff;display:block;}
+#contentViewer{width:100%;min-height:750px;height:auto;border:none;background:#ffffff;display:block;overflow:hidden;}
 
 /* Signed Out Overlay */
 #signedOutOverlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#ffffff;z-index:999;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;}
@@ -103,12 +109,11 @@ button.btn-primary:disabled{opacity:.8;cursor:not-allowed;}
   <div class="admin-card">
     <h3 style="color:#0f172a;font-size:16px;">Quick Access Menu</h3>
     <div class="quick-links">
-      <!-- Google Drive లో అప్లోడ్ చేసిన HTML ఫైల్స్‌కి సంబంధించిన Direct Preview / Web URLs ఇక్కడ ఇవ్వాలి -->
       <button class="menu-btn active" onclick="loadDriveEmbed(this, 'Marks_Entry_Form.html', '📝 Marks Entry Form')">📝 Marks Entry Form</button>
-  <button class="menu-btn" onclick="loadDriveEmbed(this, 'study_certificate.html', '📜 Study & Conduct Certificate')">📜 Study & Conduct</button>
-  <button class="menu-btn" onclick="loadDriveEmbed(this, 'study_dob_certificate.html', '🎓 Study, Conduct & DOB Certificate')">🎓 Study & DOB</button>
-  <button class="menu-btn" onclick="loadDriveEmbed(this, 'dob_certificate.html', '📝 Date of Birth Certificate')">📝 DOB Certificate</button>
-  <button class="menu-btn" onclick="loadDriveEmbed(this, 'scavenger_certificate.html', '🧹 Scavenger Attendance Certificate')">🧹 Scavenger Attendance</button>
+      <button class="menu-btn" onclick="loadDriveEmbed(this, 'study_certificate.html', '📜 Study & Conduct Certificate')">📜 Study & Conduct</button>
+      <button class="menu-btn" onclick="loadDriveEmbed(this, 'study_dob_certificate.html', '🎓 Study, Conduct & DOB Certificate')">🎓 Study & DOB</button>
+      <button class="menu-btn" onclick="loadDriveEmbed(this, 'dob_certificate.html', '📝 Date of Birth Certificate')">📝 DOB Certificate</button>
+      <button class="menu-btn" onclick="loadDriveEmbed(this, 'scavenger_certificate.html', '🧹 Scavenger Attendance Certificate')">🧹 Scavenger Attendance</button>
     </div>
   </div>
 
@@ -116,7 +121,7 @@ button.btn-primary:disabled{opacity:.8;cursor:not-allowed;}
     <div class="viewer-header">
       <span id="viewerTitle">📜 Select an Option</span>
     </div>
-    <iframe id="contentViewer"></iframe>
+    <iframe id="contentViewer" onload="resizeIframe(this)"></iframe>
   </div>
 </div>
 
@@ -187,7 +192,6 @@ form.addEventListener("submit", function(e) {
   document.body.appendChild(s);
 });
 
-// Google Drive ఫైల్‌ని ఐఫ్రేమ్‌లో లోడ్ చేసే మెయిన్ ఫంక్షన్
 function loadDriveEmbed(btnElement, driveUrl, title) {
   document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
   btnElement.classList.add('active');
@@ -195,6 +199,16 @@ function loadDriveEmbed(btnElement, driveUrl, title) {
   document.getElementById("viewerTitle").textContent = title;
   const viewer = document.getElementById("contentViewer");
   viewer.src = driveUrl;
+}
+
+// ఐఫ్రేమ్ లోపలి కంటెంట్‌కి తగ్గట్టుగా హైట్ ఆటోమేటిక్‌గా అడ్జస్ట్ చేసే ఫంక్షన్
+function resizeIframe(obj) {
+  try {
+    obj.style.height = obj.contentWindow.document.documentElement.scrollHeight + 'px';
+  } catch (e) {
+    // Cross-origin issues నివారించడానికి డిఫాల్ట్ మినిమమ్ హైట్ వర్తిస్తుంది
+    obj.style.height = '750px';
+  }
 }
 
 function openDashboard(userName) {
@@ -205,7 +219,7 @@ function openDashboard(userName) {
 
   const firstBtn = document.querySelector('.menu-btn');
   if(firstBtn) {
-    firstBtn.click(); // మొదటి బటన్‌ని ఆటోమేటిక్‌గా లోడ్ చేస్తుంది
+    firstBtn.click();
   }
 
   timeLeft = TIMEOUT_LIMIT;
