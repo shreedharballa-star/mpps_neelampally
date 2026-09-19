@@ -28,9 +28,9 @@
             color: var(--text-main);
             padding: 1.5rem 1rem;
             min-height: 100vh;
+            height: auto !important;
             position: relative;
-            overflow-x: hidden;
-            overflow-y: auto; /* కేవలం మెయిన్ పేజీలో మాత్రమే ఒకే స్క్రోల్ బార్ ఉండేలా */
+            overflow: visible !important; /* స్క్రోల్ బార్ పూర్తిగా తొలగిపోవడానికి ఇది ముఖ్యం */
         }
 
         body::before {
@@ -64,9 +64,9 @@
             z-index: 1;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.4);
-            overflow: visible; /* లోపల ఎలాంటి ఇన్నర్ స్క్రోల్ బార్లు రాకుండా */
+            height: auto !important;
+            overflow: visible !important; /* కంటెంట్ పెరిగినప్పుడు బాక్స్ దానంతట అదే పెద్దది కావడానికి */
         }
-
         h2 {
             font-size: 1.75rem;
             font-weight: 700;
