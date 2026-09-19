@@ -28,9 +28,9 @@
             color: var(--text-main);
             padding: 1.5rem 1rem;
             min-height: 100vh;
-            height: auto !important;
+            height: auto;
             position: relative;
-            overflow: visible !important; /* స్క్రోల్ బార్ పూర్తిగా తొలగిపోవడానికి ఇది ముఖ్యం */
+            overflow: hidden !important; /* ఇక్కడ స్క్రోల్ బార్ రాకుండా ఆపేస్తుంది */
         }
 
         body::before {
@@ -64,9 +64,10 @@
             z-index: 1;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.4);
-            height: auto !important;
-            overflow: visible !important; /* కంటెంట్ పెరిగినప్పుడు బాక్స్ దానంతట అదే పెద్దది కావడానికి */
+            height: auto;
+            overflow: visible !important;
         }
+        
         h2 {
             font-size: 1.75rem;
             font-weight: 700;
