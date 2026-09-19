@@ -9,7 +9,7 @@
         :root {
             --primary: #6366f1;
             --primary-hover: #4f46e5;
-            --card-bg: rgba(255, 255, 255, 0.96);
+            --card-bg: rgba(255, 255, 255, 0.98);
             --text-main: #0f172a;
             --text-muted: #475569;
             --border-color: #cbd5e1;
@@ -22,14 +22,15 @@
             font-family: 'Inter', sans-serif;
         }
 
+        /* డబుల్ స్క్రోల్ బార్ రాకుండా బాడీని సరిచేయడం */
         body {
             background: linear-gradient(135deg, #3b82f6 0%, #6366f1 50%, #8b5cf6 100%);
-            background-attachment: fixed;
             color: var(--text-main);
-            padding: 2rem 1rem;
+            padding: 1.5rem 1rem;
             min-height: 100vh;
             position: relative;
             overflow-x: hidden;
+            overflow-y: auto; /* కేవలం మెయిన్ పేజీలో మాత్రమే ఒకే స్క్రోల్ బార్ ఉండేలా */
         }
 
         body::before {
@@ -56,22 +57,22 @@
             max-width: 950px;
             margin: 0 auto;
             background: var(--card-bg);
-            padding: 2.5rem;
+            padding: 2rem;
             border-radius: 20px;
-            box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.2), 0 10px 15px -5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 20px 35px -10px rgba(0, 0, 0, 0.2);
             position: relative;
             z-index: 1;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.4);
+            overflow: visible; /* లోపల ఎలాంటి ఇన్నర్ స్క్రోల్ బార్లు రాకుండా */
         }
 
         h2 {
-            font-size: 1.875rem;
+            font-size: 1.75rem;
             font-weight: 700;
             color: var(--text-main);
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.25rem;
             text-align: center;
-            letter-spacing: -0.5px;
         }
 
         .form-grid {
@@ -143,10 +144,9 @@
             border-collapse: collapse;
             margin-top: 0.5rem;
             margin-bottom: 1rem;
-            table-layout: fixed; /* కాలమ్స్ సమానంగా ఉంచడానికి */
+            table-layout: fixed;
         }
 
-        /* సమానమైన ఈవెన్ కాలమ్ విడ్త్స్ */
         th:nth-child(1), td:nth-child(1) { width: 44%; }
         th:nth-child(2), td:nth-child(2) { width: 28%; }
         th:nth-child(3), td:nth-child(3) { width: 28%; }
@@ -247,7 +247,6 @@
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyv_8ZKwjeIfuPzZd3nlQr66EkkdWImrtgS-xk5rCdSwZ47Qoq-2sIE5ALpHKPqbyaN/exec"; 
     let studentsData = [];
 
-    // పేజీ లోడ్ అయిన వెంటనే గూగుల్ షీట్ నుండి ఫిల్టర్స్ (అకాడమిక్ ఇయర్స్, ఎగ్జామ్స్, క్లాసెస్) తెచ్చుకోవడం
     window.addEventListener('DOMContentLoaded', async function() {
         try {
             const response = await fetch(`${SCRIPT_URL}?action=getFilters`);
@@ -283,7 +282,6 @@
     });
 
     function onAcademicYearChange() {
-        // ఇయర్ మార్చినప్పుడు స్టూడెంట్ లిస్ట్ మరియు టేబుల్ రిఫ్రెష్ అవుతాయి కాని ఇయర్ అలాగే ఉంటుంది
         document.getElementById('dynamicContainer').innerHTML = '';
         document.getElementById('submitBtn').style.display = 'none';
         if(document.getElementById('classSelect').value) {
@@ -376,7 +374,6 @@
         html += `<div class="section-title">Table 2: Subject Marks (Max Marks: 50 - Fixed)</div>`;
         html += `<div class="subjects-container">`;
 
-        // Left Table: Curricular Subjects
         html += `
             <div>
                 <table>
@@ -401,7 +398,6 @@
         });
         html += `</tbody></table></div>`;
 
-        // Right Table: Co-Curricular Subjects (Only for SA)
         if (isSA && coCurricularSubjects.length > 0) {
             html += `
                 <div>
@@ -503,8 +499,6 @@
             });
             alert("Marks successfully submitted and saved to sheet!");
             
-            // సబ్మిట్ అయిన తర్వాత Academic Year, Exam Type, Class అలాగే ఉంటాయి 
-            // కేవలం స్టూడెంట్ సెలెక్షన్ మరియు మార్క్స్ ఎంట్రీ టేబుల్ మాత్రం తదుపరి స్టూడెంట్ కోసం క్లియర్ అవుతాయి
             document.getElementById('studentSelect').value = "";
             document.getElementById('dynamicContainer').innerHTML = '';
             submitBtn.style.display = 'none';
